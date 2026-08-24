@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#7A2230">
+<title>M3 · Пять способов решить одну задачу</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#F6F3EC; --paper-dark:#EEE8DA;
+    --ink:#191818; --ink-soft:#514D48;
+    --burgundy:#7A2230; --burgundy-hover:#5F1A26;
+    --brass:#8C6E42; --line:#D8D0C0;
+    --highlight-bg:#EFE0D3;
+    --display:'Fraunces',Georgia,'Times New Roman',serif;
+    --body:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,system-ui,sans-serif;
+    --mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-text-size-adjust:100%}
+  html,body{overflow-x:hidden}
+  body{background:#E6E0D2;color:var(--ink);font-family:var(--body);line-height:1.5;padding:16px 8px;display:flex;justify-content:center;min-height:100vh;min-height:100dvh}
+  .sheet{width:100%;max-width:1200px;background:var(--paper);padding:32px 40px 40px;box-shadow:0 12px 40px rgba(0,0,0,.14)}
+
+  .eyebrow{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--burgundy);font-weight:600;margin-bottom:10px}
+  h1{font-family:var(--display);font-weight:500;font-size:30px;line-height:1.1;margin-bottom:8px}
+  .sub{font-size:14px;color:var(--ink-soft);margin-bottom:24px}
+
+  /* Case switcher */
+  .cases{display:flex;gap:8px;margin-bottom:28px;flex-wrap:wrap;border-top:1.5px solid var(--ink);padding-top:16px}
+  .case-btn{font-family:var(--body);font-size:12px;font-weight:500;padding:10px 18px;border:1px solid var(--burgundy);background:transparent;color:var(--burgundy);cursor:pointer;transition:all .15s;letter-spacing:.02em;-webkit-appearance:none;border-radius:0;-webkit-tap-highlight-color:transparent;touch-action:manipulation;min-height:40px}
+  .case-btn:hover,.case-btn:active{background:var(--highlight-bg)}
+  .case-btn.active{background:var(--burgundy);color:#F4ECE2}
+  .case-label{font-size:11px;color:var(--ink-soft);align-self:center;margin-right:6px;text-transform:uppercase;letter-spacing:.15em;font-weight:600}
+
+  /* Ladder */
+  .ladder{position:relative;display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:28px}
+  .ladder::before{content:'';position:absolute;bottom:12px;left:6%;right:6%;height:1px;background:var(--burgundy);z-index:0}
+  .step{position:relative;background:var(--paper);border:1px solid var(--line);padding:16px 12px 22px;cursor:pointer;transition:all .15s;text-align:center;z-index:1;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+  .step:hover,.step:active{border-color:var(--burgundy);background:#FBFAF4}
+  .step.active{background:var(--paper-dark);border-color:var(--burgundy);border-width:2px;padding:15px 11px 21px}
+  .step-num{font-family:var(--display);font-weight:600;font-size:38px;color:var(--burgundy);line-height:1;margin-bottom:6px}
+  .step-name{font-family:var(--display);font-weight:600;font-size:14px;color:var(--ink);line-height:1.2;margin-bottom:5px;min-height:34px}
+  .step-time{font-size:10.5px;color:var(--ink-soft);letter-spacing:.03em}
+  .step-badge{position:absolute;top:6px;right:6px;font-size:8.5px;font-weight:600;color:var(--burgundy);letter-spacing:.12em;text-transform:uppercase;background:var(--highlight-bg);padding:2px 5px}
+
+  /* Detail card */
+  .detail{background:var(--paper-dark);border-top:2px solid var(--burgundy);padding:22px 26px 20px;margin-bottom:16px;transition:opacity .2s}
+  .detail-head{display:flex;align-items:baseline;gap:14px;margin-bottom:16px;flex-wrap:wrap}
+  .detail-num{font-family:var(--display);font-weight:600;font-size:44px;color:var(--burgundy);line-height:1}
+  .detail-title{font-family:var(--display);font-weight:600;font-size:22px;color:var(--ink)}
+  .detail-eyebrow{font-size:10.5px;color:var(--brass);font-weight:600;letter-spacing:.15em;text-transform:uppercase;margin-left:auto;align-self:center}
+
+  .detail-body{display:grid;grid-template-columns:1fr 1fr;gap:20px 32px}
+  .cell h4{font-family:var(--body);font-size:10.5px;font-weight:600;color:var(--burgundy);letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px}
+  .cell p{font-size:13.5px;color:var(--ink);line-height:1.55}
+  .cell.chatgpt p{color:var(--ink-soft)}
+  .cell.chatgpt h4{color:var(--brass)}
+
+  .detail-foot{margin-top:16px;padding-top:14px;border-top:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}
+  .time-badge{font-family:var(--display);font-size:14px;color:var(--burgundy);font-weight:500}
+  .time-badge b{font-weight:600}
+  .when-note{font-size:12px;color:var(--ink-soft);font-style:italic;text-align:right;max-width:60%}
+
+  .foot{border-top:1.5px solid var(--ink);padding-top:14px;font-size:12px;color:var(--ink-soft);line-height:1.55}
+  .foot b{color:var(--ink)}
+
+  @media(max-width:900px){
+    body{padding:8px 4px}
+    .sheet{padding:20px 16px 24px}
+    .ladder{grid-template-columns:repeat(5,1fr);gap:4px}
+    .ladder::before{display:none}
+    .step{padding:10px 4px 14px}
+    .step-num{font-size:26px;margin-bottom:4px}
+    .step-name{font-size:10.5px;min-height:auto;margin-bottom:3px}
+    .step-time{font-size:9.5px}
+    .step-badge{font-size:7px;padding:1px 3px;top:3px;right:3px}
+    .detail-body{grid-template-columns:1fr;gap:14px}
+    .detail-num{font-size:36px}
+    .detail-title{font-size:19px}
+    .detail-eyebrow{margin-left:0;flex-basis:100%}
+    h1{font-size:22px}
+    .cases{padding-top:12px;margin-bottom:20px}
+    .case-label{width:100%;margin-bottom:4px}
+    .case-btn{flex:1;min-width:calc(50% - 4px)}
+  }
+  @media(max-width:500px){
+    .ladder{grid-template-columns:1fr;gap:5px}
+    .step{display:flex;align-items:center;text-align:left;padding:10px 12px;gap:12px}
+    .step-num{margin-bottom:0;flex-shrink:0;width:34px}
+    .step-name{margin-bottom:2px;min-height:0;flex:1}
+    .step-time{font-size:10px}
+    .step-badge{position:static;margin-left:auto}
+  }
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="eyebrow">Модуль M3 · Лестница зрелости</div>
+  <h1>Пять способов решить одну задачу</h1>
+  <p class="sub">Одна задача — пять глубин настройки. Выберите свою. По умолчанию открыт Уровень 2 — «Ваш горизонт» для собственника.</p>
+
+  <div class="cases">
+    <span class="case-label">Кейс</span>
+    <button class="case-btn active" data-case="darya">Дарья · карточки маркетплейса</button>
+    <button class="case-btn" data-case="oksana">Оксана · сравнение оборудования</button>
+    <button class="case-btn" data-case="yulia">Юлия · SEO для letifabric.ru</button>
+  </div>
+
+  <div class="ladder" id="ladder"></div>
+
+  <div class="detail" id="detail"></div>
+
+  <div class="foot">
+    <b>Как читать лестницу.</b> Каждый следующий уровень — та же самая задача, но с другой глубиной настройки. Растут время настройки и качество результата на объёме; падает ручная работа на единицу. Для собственника ядро — Уровни 1–2. Уровни 3–4 показываем, чтобы вы знали, что так можно, и понимали, когда это звать.<br><br>
+    <b>Правило перехода вверх.</b> Не поднимайтесь по лесенке ради лесенки. Уровень 3 нужен, когда данные регулярно обновляются; Уровень 4 — когда объём переходит в сотни-тысячи. Если задача решается на Уровне 2 без напряжения — на нём и остановитесь.
+  </div>
+
+</div>
+
+<script>
+const CASES = {
+  darya: {
+    label: 'Дарья · карточки маркетплейса',
+    task: 'Проверка карточек товара на Wildberries и Ozon: заголовок, характеристики, описание, соответствие правилам площадки'
+  },
+  oksana: {
+    label: 'Оксана · сравнение оборудования',
+    task: 'Сравнительная таблица моделей ультразвуковых аппаратов по цене и характеристикам для замены у клиента'
+  },
+  yulia: {
+    label: 'Юлия · SEO для letifabric.ru',
+    task: 'SEO-аудит категорийных страниц магазина тканей на Tilda: мета-теги, H1, ключевые слова, объём контента'
+  }
+};
+
+const LEVELS = [
+  {
+    n: 0, name: 'Промпт в чате', time: '≈2 мин', wide: 'разовая задача',
+    darya:   {
+      what: 'Вставили в чат текст одной карточки, попросили: «Проверь, что можно улучшить». Ответ приходит одной простыней текста, без структуры.',
+      claude: 'Claude.ai — новый диалог, вставили текст, получили ответ. Один шаг.',
+      gpt:    'ChatGPT — то же самое. Диалог, тот же промпт, ответ отличается только по тону.',
+      when:   'Разовая проверка одной карточки. Если через день понадобится ещё раз — всё начинается с нуля.'
+    },
+    oksana:  {
+      what: 'Вставили в чат описания двух моделей аппаратов и попросили сравнить. Ответ — свободный текст, без единой структуры сравнения.',
+      claude: 'Claude.ai — новый диалог, оба описания в одном сообщении, «сравни».',
+      gpt:    'ChatGPT — то же самое. Различие только в стиле ответа.',
+      when:   'Единичное сравнение перед конкретным клиентским запросом. Регулярную работу так не построить.'
+    },
+    yulia:   {
+      what: 'Скопировали текст одной товарной страницы letifabric.ru в чат: «Улучши SEO». Ответ — общие рекомендации без разбора реальной страницы.',
+      claude: 'Claude.ai — вставили HTML или текст страницы одним куском.',
+      gpt:    'ChatGPT — то же. У обоих без структуры на выходе.',
+      when:   'Прикинуть, стоит ли вообще браться за SEO. Систему так не построить.'
+    }
+  },
+  {
+    n: 1, name: 'Мастер-промпт', time: '≈10 мин', wide: 'задача повторяется вручную',
+    darya:   {
+      what: 'Тот же запрос по шести элементам: роль «менеджер маркетплейсов», 5 пунктов проверки, формат таблицы «Что не так → Как исправить», правило «не выдумывай требования площадки».',
+      claude: 'Тот же промпт, но по структуре. Копируется из карточки промптов, вставляется в новый чат Claude вместе с текстом карточки.',
+      gpt:    'В ChatGPT — тот же самый мастер-промпт. Универсален между сервисами.',
+      when:   'Проверяете 3–5 карточек в неделю руками. Промпт стал повторяемым, но его всё равно надо вставлять каждый раз.'
+    },
+    oksana:  {
+      what: 'Промпт по шести элементам: роль «инженер по подбору», критерии сравнения (цена, датчики, гарантия, обучение, реестр), фиксированный формат таблицы, правило «нет данных — [УТОЧНИТЬ]».',
+      claude: 'Мастер-промпт из карточек, вставляется вместе с описаниями двух моделей.',
+      gpt:    'Тот же промпт в ChatGPT — идентичный результат по структуре.',
+      when:   'Сравниваете 2–3 модели в месяц. Форма ответа стабильна, но настройка каждый раз ручная.'
+    },
+    yulia:   {
+      what: 'Промпт по шести элементам: роль «SEO-специалист по e-com на Tilda», критерии (длина title, H1, ключи, уникальность), формат таблицы «Текущее / Предложение / Обоснование», правило [УТОЧНИТЬ] для трафика.',
+      claude: 'Мастер-промпт из карточек + текст страницы. Ответ приходит в готовом к вставке в Tilda виде.',
+      gpt:    'ChatGPT — тот же промпт, тот же результат.',
+      when:   'Раз в квартал аудит одной-двух страниц. Промпт готов, но ручной работы много.'
+    }
+  },
+  {
+    n: 2, name: 'Ассистент в Projects', time: '≈20 мин', wide: 'регулярная задача', badge: 'Ваш горизонт',
+    darya:   {
+      what: 'Проект «Проверка карточек WB/Ozon» в Claude Projects. Мастер-промпт — в инструкцию проекта. В файлы-знания: правила категории площадки, список ключевых слов бренда, эталон хорошей карточки. Дальше — просто вставляем текст новой карточки в диалог.',
+      claude: 'Claude Projects → New project → инструкция + знания. Один раз настроил — работает.',
+      gpt:    'ChatGPT Projects (для Plus) или создать кастомный GPT: те же шаги, другими кнопками. Инструкция в поле «System», знания — в загруженные файлы.',
+      when:   'Проверяете карточки как часть рутины — от 5 в неделю. Каждая новая карточка = 30 секунд вместо 10 минут.'
+    },
+    oksana:  {
+      what: 'Проект «Сравнение оборудования» в Claude Projects. Инструкция — мастер-промпт с ролью инженера по подбору. Файлы-знания: критерии сравнения по категориям, справочник основных моделей, шаблон итоговой таблицы для клиента.',
+      claude: 'Claude Projects: настроен один раз для отдела продаж.',
+      gpt:    'ChatGPT Projects или кастомный GPT — идентичная логика.',
+      when:   'Готовите сравнительные таблицы регулярно — 5–10 в месяц. Экономия времени становится ощутимой.'
+    },
+    yulia:   {
+      what: 'Проект «SEO letifabric.ru» в Claude Projects. Инструкция — мастер-промпт SEO-аналитика. В файлы-знания: брендбук магазина, список категорий тканей, семантическое ядро с частотностями, гайд по редактированию SEO в Tilda.',
+      claude: 'Claude Projects: подключаете новую страницу — получаете аудит в единой форме.',
+      gpt:    'ChatGPT Projects или кастомный GPT — точно так же.',
+      when:   'Расширяете сайт: новые категории, новые статьи. Каждую страницу прогоняете через ассистента до публикации.'
+    }
+  },
+  {
+    n: 3, name: 'Подключённый агент (Cowork)', time: '≈30–60 мин', wide: 'данные живут в файле',
+    darya:   {
+      what: 'Прикрепить выгрузку карточек из кабинета селлера в Claude Cowork, дать задачу «проверь каждую карточку и собери таблицу с замечаниями». Cowork открывает файл, проходит по строкам сам, собирает Excel с колонкой «Замечания».',
+      claude: 'Claude Cowork — десктоп-приложение, режим агентной задачи. Ассистент из Уровня 2 остаётся для точечных задач; Cowork берёт объём.',
+      gpt:    'ChatGPT: прикрепить тот же Excel в чат, включить Advanced Data Analysis (в Plus/Team), дать ту же задачу. Модель пишет Python-код, проходит по строкам, возвращает файл.',
+      when:   'Раз в неделю или чаще выгружаете десятки карточек. Ручная проверка каждой уже занимает часы.'
+    },
+    oksana:  {
+      what: 'Прикрепить в Cowork выгрузку моделей от поставщика (10–30 позиций в Excel) и справочник критериев. Задача: «Сравни все модели по нашим критериям, отметь, где в реестре Росздравнадзора данных не хватает».',
+      claude: 'Claude Cowork — многошаговая задача с прикреплёнными данными.',
+      gpt:    'ChatGPT + Advanced Data Analysis — тот же принцип: файл + инструкция.',
+      when:   'Работаете с крупными каталогами поставщиков — сотни SKU. Ручное сравнение по строкам стало узким местом.'
+    },
+    yulia:   {
+      what: 'Прикрепить в Cowork выгрузку всех страниц сайта (можно из sitemap.xml или отчёта Screaming Frog). Задача: «Проведи SEO-аудит по каждой странице, собери таблицу с приоритетными правками».',
+      claude: 'Claude Cowork с выгрузкой + справочник по SEO из знаний.',
+      gpt:    'ChatGPT + Advanced Data Analysis — тот же результат через Python в песочнице модели.',
+      when:   'На сайте более 30–50 страниц, аудит одной за другой невозможен. Данные живут в регулярно обновляемой выгрузке.'
+    }
+  },
+  {
+    n: 4, name: 'Вайбкодинг (Claude Code)', time: '≈1–2 часа с ИИ', wide: 'десятки-сотни разом',
+    darya:   {
+      what: 'Локальный Python-скрипт, собранный через Claude Code. Читает Excel-выгрузку любого размера, проверяет по чек-листу, возвращает Excel с колонкой «Замечания». Ничего не отправляет в интернет.',
+      claude: 'Claude Code (terminal) — вайбкодинг. Один раз собрали, дальше — `python check.py cards.xlsx`, всё локально.',
+      gpt:    'ChatGPT: ближайший аналог — Codex CLI от OpenAI. Порог входа выше, интерфейс сложнее для нетехнического пользователя.',
+      when:   'Проверяете тысячи карточек ежедневно. Работа переросла личный инструмент — но пока не оправдывает найма разработчика.'
+    },
+    oksana:  {
+      what: 'Скрипт, который берёт файл с моделями, применяет критерии, дополнительно сверяется с открытым API Росздравнадзора и помечает флажком, чего в реестре нет. Всё локально + один внешний запрос.',
+      claude: 'Claude Code — сборка за час-два с ИИ, включая интеграцию с API реестра.',
+      gpt:    'Codex CLI — то же самое, но с большей ручной работой по настройке.',
+      when:   'Автоматизируете подбор в масштабе отдела — десятки сравнений в день. Разово окупается за месяц использования.'
+    },
+    yulia:   {
+      what: 'Скрипт, который проходит по sitemap.xml сайта, скачивает страницы, разбирает мета-теги и содержимое, выдаёт таблицу с приоритетом правок. Полностью локально, не требует ручной выгрузки.',
+      claude: 'Claude Code — сборка с ИИ. Один раз настроили, потом запускаете раз в месяц одной командой.',
+      gpt:    'Codex CLI — есть, но настройка потребует больше времени и понимания терминала.',
+      when:   'Сайт растёт, аудит должен быть регулярным и без ручного экспорта. Уровень 4 — прямая замена дорогому SEO-агентству на технической части.'
+    }
+  }
+];
+
+let currentCase = 'darya';
+let currentLevel = 2;
+
+function render() {
+  const ladder = document.getElementById('ladder');
+  ladder.innerHTML = LEVELS.map((L, i) => `
+    <div class="step ${i === currentLevel ? 'active' : ''}" data-level="${i}">
+      ${L.badge ? `<div class="step-badge">${L.badge}</div>` : ''}
+      <div class="step-num">${L.n}</div>
+      <div class="step-name">${L.name}</div>
+      <div class="step-time">${L.time}</div>
+    </div>
+  `).join('');
+
+  const L = LEVELS[currentLevel];
+  const D = L[currentCase];
+  const detail = document.getElementById('detail');
+  detail.style.opacity = '0';
+  setTimeout(() => {
+    detail.innerHTML = `
+      <div class="detail-head">
+        <div class="detail-num">${L.n}</div>
+        <div class="detail-title">${L.name}</div>
+        <div class="detail-eyebrow">Кейс · ${CASES[currentCase].label}</div>
+      </div>
+      <div class="detail-body">
+        <div class="cell">
+          <h4>Что делаем на этом уровне</h4>
+          <p>${D.what}</p>
+        </div>
+        <div class="cell">
+          <h4>Инструмент Claude</h4>
+          <p>${D.claude}</p>
+        </div>
+        <div class="cell chatgpt">
+          <h4>Аналог в ChatGPT</h4>
+          <p>${D.gpt}</p>
+        </div>
+        <div class="cell">
+          <h4>Когда этот уровень нужен</h4>
+          <p>${D.when}</p>
+        </div>
+      </div>
+      <div class="detail-foot">
+        <div class="time-badge">Время настройки: <b>${L.time}</b></div>
+        <div class="when-note">${L.wide}</div>
+      </div>
+    `;
+    detail.style.opacity = '1';
+  }, 100);
+
+  // rebind step click handlers
+  document.querySelectorAll('.step').forEach(s => {
+    s.addEventListener('click', () => {
+      currentLevel = +s.dataset.level;
+      render();
+      updateURL();
+    });
+  });
+}
+
+// case buttons
+document.querySelectorAll('.case-btn').forEach(b => {
+  b.addEventListener('click', () => {
+    currentCase = b.dataset.case;
+    document.querySelectorAll('.case-btn').forEach(x => x.classList.remove('active'));
+    b.classList.add('active');
+    render();
+    updateURL();
+  });
+});
+
+// URL persistence
+function updateURL() {
+  const p = new URLSearchParams();
+  p.set('case', currentCase);
+  p.set('level', currentLevel);
+  history.replaceState(null, '', '?' + p.toString());
+}
+function loadURL() {
+  const p = new URLSearchParams(location.search);
+  const c = p.get('case');
+  const l = p.get('level');
+  if (c && CASES[c]) currentCase = c;
+  if (l !== null && +l >= 0 && +l < 5) currentLevel = +l;
+  document.querySelectorAll('.case-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.case === currentCase);
+  });
+}
+loadURL();
+render();
+</script>
+</body>
+</html>

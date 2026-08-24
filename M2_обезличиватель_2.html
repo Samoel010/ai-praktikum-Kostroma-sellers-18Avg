@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#7A2230">
+<title>M2 · Живой обезличиватель</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#F6F3EC; --paper-dark:#EEE8DA; --paper-darker:#EFE9D9;
+    --ink:#191818; --ink-soft:#514D48;
+    --burgundy:#7A2230; --burgundy-hover:#5F1A26;
+    --brass:#8C6E42; --line:#D8D0C0;
+    --highlight-bg:#EFE0D3;
+    --display:'Fraunces',Georgia,'Times New Roman',serif;
+    --body:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,system-ui,sans-serif;
+    --mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-text-size-adjust:100%}
+  html,body{overflow-x:hidden}
+  body{background:#E6E0D2;color:var(--ink);font-family:var(--body);line-height:1.5;padding:16px 8px;display:flex;justify-content:center;min-height:100vh;min-height:100dvh}
+  .sheet{width:100%;max-width:1180px;background:var(--paper);padding:24px 20px 28px;box-shadow:0 8px 24px rgba(0,0,0,.1)}
+
+  .eyebrow{font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--burgundy);font-weight:600;margin-bottom:8px}
+  h1{font-family:var(--display);font-weight:500;font-size:clamp(22px,4.5vw,30px);line-height:1.15;margin-bottom:6px}
+  .sub{font-size:13.5px;color:var(--ink-soft);margin-bottom:18px;line-height:1.5}
+
+  .banner{background:var(--burgundy);color:#F4ECE2;padding:12px 16px;margin-bottom:20px}
+  .banner .bl{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:#E4B7A0;font-weight:600;margin-bottom:4px}
+  .banner p{font-family:var(--display);font-size:14px;color:#F3E9DC;line-height:1.4}
+
+  .settings{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
+  .card{background:var(--paper-dark);border-top:2px solid var(--burgundy);padding:12px 14px}
+  .card-title{font-family:var(--display);font-weight:600;font-size:14px;margin-bottom:8px}
+
+  .checks{display:grid;grid-template-columns:1fr 1fr;gap:6px 12px}
+  .checks label{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--ink);cursor:pointer;padding:2px 0;-webkit-tap-highlight-color:transparent}
+  .checks input{width:16px;height:16px;accent-color:var(--burgundy);cursor:pointer;flex-shrink:0}
+
+  .split-fields{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .split-fields label{font-size:10.5px;color:var(--brass);font-weight:600;letter-spacing:.05em;text-transform:uppercase;display:block;margin-bottom:4px}
+  textarea{width:100%;font-family:var(--mono);font-size:13px;color:var(--ink);background:var(--paper);border:1px solid var(--line);padding:9px 11px;resize:vertical;line-height:1.5;-webkit-appearance:none;border-radius:0}
+  textarea:focus{outline:none;border-color:var(--burgundy)}
+  .list-area{height:88px;font-size:12px}
+
+  .work-area{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:18px}
+  .work-col h3{font-family:var(--display);font-weight:600;font-size:14px;margin-bottom:6px;display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+  .work-col h3 .len{font-family:var(--body);font-size:10.5px;color:var(--ink-soft);font-weight:400;letter-spacing:.03em;white-space:nowrap}
+  .main-area{height:280px}
+  .output-area{background:var(--paper-darker)}
+
+  .actions{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
+  button{font-family:var(--body);font-size:13px;font-weight:500;padding:10px 16px;border:1px solid var(--burgundy);cursor:pointer;transition:all .15s;-webkit-appearance:none;border-radius:0;min-height:40px;touch-action:manipulation}
+  .btn-primary{background:var(--burgundy);color:#F4ECE2}
+  .btn-primary:hover,.btn-primary:active{background:var(--burgundy-hover);border-color:var(--burgundy-hover)}
+  .btn-secondary{background:transparent;color:var(--burgundy)}
+  .btn-secondary:hover,.btn-secondary:active{background:var(--burgundy);color:#F4ECE2}
+  button.copied{background:var(--brass);border-color:var(--brass);color:#F4ECE2}
+
+  .stats{border-top:1.5px solid var(--ink);padding-top:14px;margin-top:6px}
+  .stats-title{font-family:var(--display);font-weight:600;font-size:14px;margin-bottom:10px}
+  .stats-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  table{width:100%;border-collapse:collapse;font-size:13px;min-width:340px}
+  th,td{text-align:left;padding:8px 12px;border-bottom:1px solid var(--line)}
+  th{color:var(--brass);font-weight:600;font-size:10.5px;text-transform:uppercase;letter-spacing:.05em}
+  td:nth-child(2){font-family:var(--mono);font-size:12px;color:var(--burgundy)}
+  td:nth-child(3){text-align:right;font-family:var(--mono);font-weight:500}
+  tr.zero td{color:var(--ink-soft);opacity:.5}
+  .total{font-family:var(--display);font-size:18px;font-weight:600;color:var(--burgundy);text-align:right;margin-top:10px;padding-top:10px;border-top:1.5px solid var(--ink)}
+
+  .foot{border-top:1.5px solid var(--ink);padding-top:14px;margin-top:22px;font-size:12px;color:var(--ink-soft);line-height:1.55}
+  .foot b{color:var(--ink)}
+
+  .toast{position:fixed;bottom:16px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--burgundy);color:#F4ECE2;padding:10px 20px;font-size:13px;opacity:0;transition:all .25s;pointer-events:none;box-shadow:0 4px 12px rgba(0,0,0,.2);z-index:100}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+  @media(max-width:820px){
+    body{padding:8px 4px}
+    .sheet{padding:18px 14px 22px}
+    .settings,.work-area{grid-template-columns:1fr}
+    .checks{grid-template-columns:1fr}
+    .split-fields{grid-template-columns:1fr}
+    .main-area{height:220px}
+    .banner{padding:10px 14px}
+    .banner p{font-size:13px}
+  }
+  @media(max-width:400px){
+    .actions{flex-direction:column;align-items:stretch}
+    .actions button{width:100%}
+  }
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="eyebrow">Модуль M2 · Безопасная работа с данными</div>
+  <h1>Живой обезличиватель</h1>
+  <p class="sub">Вставьте текст слева — справа сразу увидите очищенную версию с заменёнными персональными данными.</p>
+
+  <div class="banner">
+    <div class="bl">Главное правило</div>
+    <p>Работает у вас в браузере. Данные никуда не отправляются. Вкладку можно открыть один раз и потом использовать офлайн.</p>
+  </div>
+
+  <div class="settings">
+    <div class="card">
+      <div class="card-title">Что заменять</div>
+      <div class="checks">
+        <label><input type="checkbox" id="c-names" checked>ФИО → [ФИО]</label>
+        <label><input type="checkbox" id="c-companies" checked>Компании → [КОМПАНИЯ]</label>
+        <label><input type="checkbox" id="c-contacts" checked>Телефоны, email → [КОНТАКТ]</label>
+        <label><input type="checkbox" id="c-numbers" checked>ИНН, счета, номера → [НОМЕР]</label>
+        <label><input type="checkbox" id="c-sums" checked>Суммы → [СУММА]</label>
+        <label><input type="checkbox" id="c-addresses" checked>Адреса → [АДРЕС]</label>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Свои списки — по одному на строку</div>
+      <div class="split-fields">
+        <div>
+          <label>ФИО</label>
+          <textarea id="names-list" class="list-area" placeholder="Иванов Иван Иванович&#10;Смирнова Марина" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"></textarea>
+        </div>
+        <div>
+          <label>Компании</label>
+          <textarea id="companies-list" class="list-area" placeholder="СтройТорг&#10;Банк Открытие" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="work-area">
+    <div class="work-col">
+      <h3>Исходный текст <span class="len" id="in-len">0 симв.</span></h3>
+      <textarea id="input" class="main-area" placeholder="Вставьте текст договора, письма или любого документа…" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"></textarea>
+      <div class="actions">
+        <button class="btn-secondary" id="btn-example">Вставить пример</button>
+        <button class="btn-secondary" id="btn-clear">Очистить</button>
+      </div>
+    </div>
+    <div class="work-col">
+      <h3>Очищенный текст <span class="len" id="out-len">0 симв.</span></h3>
+      <textarea id="output" class="main-area output-area" readonly placeholder="Результат появится здесь автоматически…"></textarea>
+      <div class="actions">
+        <button class="btn-primary" id="btn-copy">Скопировать очищенный текст</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="stats">
+    <div class="stats-title">Что заменено</div>
+    <div class="stats-wrap">
+      <table>
+        <thead>
+          <tr><th>Категория</th><th>Метка</th><th style="text-align:right">Найдено раз</th></tr>
+        </thead>
+        <tbody id="stats-body"></tbody>
+      </table>
+    </div>
+    <div class="total">Всего замен: <span id="total">0</span></div>
+  </div>
+
+  <div class="foot">
+    <b>Как это работает.</b> Всё, что вы вводите, обрабатывается в этой вкладке браузера. Никаких серверов, никаких API. Структурные данные (телефоны, email, ИНН, суммы, адреса) находятся по шаблонам автоматически. ФИО и названия компаний — по вашим спискам слева. После первой загрузки страница работает офлайн.<br><br>
+    <b>Что делать с результатом.</b> Скопируйте очищенный текст и уже его отправляйте в ИИ. Сырой документ в чат не вставляйте — данные уйдут ещё до того, как модель начнёт работать.
+  </div>
+
+</div>
+
+<div class="toast" id="toast">Скопировано</div>
+
+<script>
+'use strict';
+
+function $(id){ return document.getElementById(id); }
+var input = $('input'), output = $('output');
+
+function esc(s){ return s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'); }
+
+// Word-boundary check without regex lookbehind (which breaks on Safari < 16.4 and in-app WebViews).
+function isWordChar(ch){
+  if(!ch) return false;
+  return /[\wа-яёА-ЯЁ]/.test(ch);
+}
+function isDigit(ch){
+  return ch >= '0' && ch <= '9';
+}
+
+// Generic bounded replacement — checks boundary in JS instead of regex.
+// boundary: 'word' | 'digit' | 'digit-or-openbracket'
+function replaceBounded(text, pattern, replacement, boundary){
+  var count = 0;
+  var result = text.replace(pattern, function(match, offset){
+    var before = offset > 0 ? text.charAt(offset - 1) : '';
+    var after  = text.charAt(offset + match.length) || '';
+    var ok = true;
+    if(boundary === 'word'){
+      if(isWordChar(before) || isWordChar(after)) ok = false;
+    } else if(boundary === 'digit'){
+      if(isDigit(before) || isDigit(after)) ok = false;
+    } else if(boundary === 'digit-or-openbracket'){
+      if(isDigit(before) || before === '[' || isDigit(after)) ok = false;
+    }
+    if(ok){ count++; return replacement; }
+    return match;
+  });
+  return { text: result, count: count };
+}
+
+function parseList(text){
+  return text.split('\n').map(function(s){ return s.trim(); }).filter(Boolean);
+}
+
+// Stem token for Russian inflection.
+function stemToken(word){
+  if(word.length <= 4) return esc(word);
+  return esc(word.slice(0, -2)) + '[а-яёА-ЯЁ]{0,4}';
+}
+
+function process(){
+  var text = input.value;
+  var counts = { 'ФИО':0, 'Компании':0, 'Телефоны и email':0, 'ИНН, счета, номера':0, 'Суммы':0, 'Адреса':0 };
+  var r, m;
+
+  // 1. Companies from list
+  if($('c-companies').checked){
+    var companies = parseList($('companies-list').value);
+    for(var i=0; i<companies.length; i++){
+      var re = new RegExp(esc(companies[i]), 'gi');
+      r = replaceBounded(text, re, '[КОМПАНИЯ]', 'word');
+      counts['Компании'] += r.count; text = r.text;
+    }
+  }
+
+  // 2. Names from list — full name + surname alone
+  if($('c-names').checked){
+    var names = parseList($('names-list').value);
+    for(var j=0; j<names.length; j++){
+      var words = names[j].split(/\s+/).filter(function(w){ return w.length > 1; });
+      if(words.length === 0) continue;
+
+      if(words.length > 1){
+        var pattern = words.map(stemToken).join('\\s+');
+        r = replaceBounded(text, new RegExp(pattern, 'g'), '[ФИО]', 'word');
+        counts['ФИО'] += r.count; text = r.text;
+      }
+      var surname = words[0];
+      if(surname.length > 4){
+        r = replaceBounded(text, new RegExp(stemToken(surname), 'g'), '[ФИО]', 'word');
+        counts['ФИО'] += r.count; text = r.text;
+      }
+    }
+  }
+
+  // 3. Emails
+  if($('c-contacts').checked){
+    m = text.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g);
+    if(m){ counts['Телефоны и email'] += m.length; text = text.replace(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g, '[КОНТАКТ]'); }
+  }
+
+  // 4. Sums with currency
+  if($('c-sums').checked){
+    var reSum = /\d{1,3}(?:[\s\u00A0]?\d{3})*(?:[.,]\d{1,2})?\s?(?:₽|руб(?:лей|ля|\.)?|USD|\$|EUR|€|долл(?:аров|ара|\.)?|евро)/gi;
+    m = text.match(reSum);
+    if(m){ counts['Суммы'] += m.length; text = text.replace(reSum, '[СУММА]'); }
+  }
+
+  // 5. Passport RU: 4 + 6 digits
+  if($('c-numbers').checked){
+    r = replaceBounded(text, /\d{4}[\s\-]\d{6}/g, '[НОМЕР]', 'digit');
+    counts['ИНН, счета, номера'] += r.count; text = r.text;
+  }
+
+  // 6. Bank accounts (20) and long standalone numbers
+  if($('c-numbers').checked){
+    r = replaceBounded(text, /\d{20}/g, '[НОМЕР]', 'digit');
+    counts['ИНН, счета, номера'] += r.count; text = r.text;
+
+    r = replaceBounded(text, /\d{13,19}/g, '[НОМЕР]', 'digit');
+    counts['ИНН, счета, номера'] += r.count; text = r.text;
+  }
+
+  // 7. INN (10 or 12 digits)
+  if($('c-numbers').checked){
+    r = replaceBounded(text, /\d{12}/g, '[НОМЕР]', 'digit');
+    counts['ИНН, счета, номера'] += r.count; text = r.text;
+
+    r = replaceBounded(text, /\d{10}/g, '[НОМЕР]', 'digit');
+    counts['ИНН, счета, номера'] += r.count; text = r.text;
+  }
+
+  // 8. Phones LAST — after long numbers replaced.
+  if($('c-contacts').checked){
+    r = replaceBounded(text, /(?:\+?[78])[\s\-\(\)]*\d{3}[\s\-\(\)]*\d{3}[\s\-]*\d{2}[\s\-]*\d{2}/g, '[КОНТАКТ]', 'digit-or-openbracket');
+    counts['Телефоны и email'] += r.count; text = r.text;
+
+    r = replaceBounded(text, /\+\d{1,3}[\s\-]\d{2,4}[\s\-]\d{3,4}[\s\-]\d{2,4}/g, '[КОНТАКТ]', 'digit');
+    counts['Телефоны и email'] += r.count; text = r.text;
+  }
+
+  // 9. Addresses
+  if($('c-addresses').checked){
+    var reAddr = /(?:г\.?|город)\s+[А-ЯЁA-Z][а-яёa-zA-Z\-]+[^\n]*?(?:д\.?\s*\d+[а-яёА-ЯЁa-zA-Z]?|кв\.?\s*\d+|оф\.?\s*\d+|стр\.?\s*\d+)[^\n]*/g;
+    m = text.match(reAddr);
+    if(m){ counts['Адреса'] += m.length; text = text.replace(reAddr, '[АДРЕС]'); }
+
+    r = replaceBounded(text, /(?:г\.?|город)\s+[А-ЯЁA-Z][а-яёa-z\-]{2,20}/g, '[АДРЕС]', 'word');
+    counts['Адреса'] += r.count; text = r.text;
+  }
+
+  output.value = text;
+
+  var rows = [
+    ['ФИО', '[ФИО]', counts['ФИО']],
+    ['Компании', '[КОМПАНИЯ]', counts['Компании']],
+    ['Телефоны и email', '[КОНТАКТ]', counts['Телефоны и email']],
+    ['ИНН, счета, номера', '[НОМЕР]', counts['ИНН, счета, номера']],
+    ['Суммы', '[СУММА]', counts['Суммы']],
+    ['Адреса', '[АДРЕС]', counts['Адреса']]
+  ];
+  var total = 0, html = '';
+  for(var k=0; k<rows.length; k++){
+    total += rows[k][2];
+    html += '<tr class="' + (rows[k][2] === 0 ? 'zero' : '') + '"><td>' + rows[k][0] + '</td><td>' + rows[k][1] + '</td><td>' + rows[k][2] + '</td></tr>';
+  }
+  $('stats-body').innerHTML = html;
+  $('total').textContent = total;
+
+  $('in-len').textContent = input.value.length + ' симв.';
+  $('out-len').textContent = output.value.length + ' симв.';
+}
+
+input.addEventListener('input', process);
+var wire = ['c-names','c-companies','c-contacts','c-numbers','c-sums','c-addresses','names-list','companies-list'];
+for(var w=0; w<wire.length; w++){
+  $(wire[w]).addEventListener('input', process);
+  $(wire[w]).addEventListener('change', process);
+}
+
+$('btn-clear').addEventListener('click', function(){
+  input.value = ''; output.value = ''; process();
+});
+
+function showToast(msg){
+  var t = $('toast'); t.textContent = msg; t.classList.add('show');
+  setTimeout(function(){ t.classList.remove('show'); }, 1800);
+}
+
+// Copy with three-level fallback: Clipboard API → execCommand → text selection.
+$('btn-copy').addEventListener('click', function(){
+  if(!output.value) return;
+  var btn = $('btn-copy');
+  var oldText = btn.textContent;
+
+  function markCopied(){
+    btn.textContent = 'Скопировано';
+    btn.classList.add('copied');
+    setTimeout(function(){ btn.textContent = oldText; btn.classList.remove('copied'); }, 1500);
+    showToast('Скопировано');
+  }
+  function fallbackCopy(){
+    try{
+      output.removeAttribute('readonly');
+      output.focus();
+      output.select();
+      output.setSelectionRange(0, output.value.length);
+      var ok = document.execCommand('copy');
+      output.setAttribute('readonly', 'readonly');
+      if(ok){ markCopied(); return; }
+    }catch(e){}
+    try{
+      output.removeAttribute('readonly');
+      output.focus();
+      output.select();
+      output.setSelectionRange(0, output.value.length);
+      output.setAttribute('readonly', 'readonly');
+    }catch(e){}
+    showToast('Текст выделен — нажмите Ctrl+C или Cmd+C');
+  }
+
+  if(navigator.clipboard && navigator.clipboard.writeText && window.isSecureContext){
+    navigator.clipboard.writeText(output.value).then(markCopied, fallbackCopy);
+  } else {
+    fallbackCopy();
+  }
+});
+
+var EXAMPLE = 'Договор № 2024/07-341 от 15 июля 2026 года\n\n' +
+  'Общество с ограниченной ответственностью "СтройТорг" (ИНН 7712345678),\n' +
+  'в лице генерального директора Петрова Александра Ивановича,\n' +
+  'действующего на основании Устава, именуемое в дальнейшем "Поставщик",\n\n' +
+  'и Индивидуальный предприниматель Смирнова Марина Викторовна\n' +
+  '(ИНН 771234567890), паспорт 4515 123456,\n' +
+  'именуемая в дальнейшем "Заказчик",\n\n' +
+  'заключили настоящий договор о нижеследующем:\n\n' +
+  '1. Поставщик обязуется поставить товар на сумму 456 000 рублей.\n' +
+  '2. Оплата производится на р/с 40702810100000012345\n' +
+  '   в АО "Банк Открытие", БИК 044525985.\n' +
+  '3. Адрес поставки: г. Москва, ул. Тверская, д. 15, стр. 2, оф. 305.\n' +
+  '4. Контактный телефон Заказчика: +7 (925) 123-45-67, email: smirnova@example.ru.';
+
+$('btn-example').addEventListener('click', function(){
+  $('names-list').value = 'Петров Александр Иванович\nСмирнова Марина Викторовна';
+  $('companies-list').value = 'СтройТорг\nБанк Открытие';
+  input.value = EXAMPLE;
+  process();
+});
+
+process();
+</script>
+</body>
+</html>

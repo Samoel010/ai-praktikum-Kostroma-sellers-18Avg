@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#7A2230">
+<title>M1 · Конструктор промпта</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#F6F3EC; --paper-dark:#EEE8DA; --paper-darker:#EFE9D9;
+    --ink:#191818; --ink-soft:#514D48;
+    --burgundy:#7A2230; --burgundy-hover:#5F1A26;
+    --brass:#8C6E42; --line:#D8D0C0;
+    --highlight-bg:#EFE0D3;
+    --display:'Fraunces',Georgia,'Times New Roman',serif;
+    --body:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,system-ui,sans-serif;
+    --mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-text-size-adjust:100%}
+  html,body{overflow-x:hidden}
+  body{background:#E6E0D2;color:var(--ink);font-family:var(--body);line-height:1.5;padding:16px 8px;display:flex;justify-content:center;min-height:100vh;min-height:100dvh}
+  .sheet{width:100%;max-width:1280px;background:var(--paper);padding:28px 36px 32px;box-shadow:0 12px 40px rgba(0,0,0,.14)}
+
+  .head{border-bottom:1.5px solid var(--ink);padding-bottom:14px;margin-bottom:16px}
+  .eyebrow{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--burgundy);font-weight:600;margin-bottom:8px}
+  h1{font-family:var(--display);font-weight:500;font-size:28px;line-height:1.1;margin-bottom:6px}
+  .sub{font-size:13.5px;color:var(--ink-soft)}
+
+  /* Presets bar */
+  .presets{display:flex;gap:6px;margin-bottom:18px;flex-wrap:wrap;align-items:center}
+  .preset-label{font-size:10.5px;color:var(--ink-soft);letter-spacing:.15em;text-transform:uppercase;font-weight:600;margin-right:8px}
+  .preset-btn{font-family:var(--body);font-size:11.5px;font-weight:500;padding:7px 12px;border:1px solid var(--line);background:var(--paper);color:var(--ink);cursor:pointer;transition:all .15s;-webkit-appearance:none;border-radius:0;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+  .preset-btn:hover,.preset-btn:active{border-color:var(--burgundy);color:var(--burgundy)}
+
+  /* Two columns */
+  .work{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+
+  /* Left: fields */
+  .fields{display:flex;flex-direction:column;gap:10px}
+  .field{background:var(--paper-dark);padding:12px 14px;border-left:3px solid transparent;transition:border-color .15s}
+  .field.filled{border-left-color:var(--burgundy)}
+  .field-head{display:flex;align-items:baseline;gap:10px;margin-bottom:4px}
+  .field-num{font-family:var(--display);font-weight:600;font-size:18px;color:var(--burgundy);line-height:1;min-width:16px}
+  .field-name{font-family:var(--display);font-weight:600;font-size:14px;color:var(--ink)}
+  .field-len{margin-left:auto;font-size:10.5px;color:var(--ink-soft);font-family:var(--body)}
+  .field-hint{font-size:11px;color:var(--ink-soft);margin-bottom:6px;line-height:1.4}
+  .field-hint b{color:var(--burgundy);font-weight:600}
+  textarea{width:100%;font-family:var(--mono);font-size:12.5px;color:var(--ink);background:var(--paper);border:1px solid var(--line);padding:9px 11px;resize:vertical;line-height:1.5;min-height:44px;-webkit-appearance:none;border-radius:0}
+  textarea:focus{outline:none;border-color:var(--burgundy)}
+  textarea::placeholder{color:#B5AC9B;font-style:italic}
+
+  /* Right: preview (sticky on desktop) */
+  .preview-wrap{position:sticky;top:20px;align-self:start}
+  .preview-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px}
+  .preview-title{font-family:var(--display);font-weight:600;font-size:16px;color:var(--ink)}
+  .preview-hint{font-size:11px;color:var(--ink-soft);font-style:italic}
+  .preview{background:var(--paper-darker);border:1px solid var(--line);border-left:3px solid var(--brass);padding:14px 16px;font-family:var(--mono);font-size:11.5px;color:var(--ink);line-height:1.55;white-space:pre-wrap;word-break:break-word;min-height:400px;max-height:520px;overflow-y:auto}
+  .preview.empty{color:var(--ink-soft);font-style:italic;font-family:var(--body);font-size:12.5px}
+
+  .actions{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+  button.action{font-family:var(--body);font-size:12.5px;font-weight:500;padding:10px 16px;border:1px solid var(--burgundy);cursor:pointer;transition:all .15s;-webkit-appearance:none;border-radius:0;min-height:40px;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+  .btn-primary{background:var(--burgundy);color:#F4ECE2}
+  .btn-primary:hover,.btn-primary:active{background:var(--burgundy-hover);border-color:var(--burgundy-hover)}
+  .btn-secondary{background:transparent;color:var(--burgundy)}
+  .btn-secondary:hover,.btn-secondary:active{background:var(--burgundy);color:#F4ECE2}
+  button.action.copied{background:var(--brass);border-color:var(--brass);color:#F4ECE2}
+
+  .hint-warn{background:var(--highlight-bg);color:var(--burgundy);padding:10px 14px;margin-top:12px;font-size:12px;line-height:1.5;display:none}
+  .hint-warn.show{display:block}
+
+  .foot{border-top:1.5px solid var(--ink);padding-top:14px;margin-top:20px;font-size:12px;color:var(--ink-soft);line-height:1.55}
+  .foot b{color:var(--ink)}
+
+  @media(max-width:960px){
+    .sheet{padding:20px 16px}
+    .work{grid-template-columns:1fr}
+    .preview-wrap{position:static}
+    h1{font-size:22px}
+    .presets{gap:5px}
+    .preset-btn{padding:5px 9px;font-size:11px}
+  }
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="head">
+    <div class="eyebrow">Модуль M1 · Анатомия запроса</div>
+    <h1>Конструктор промпта по шести элементам</h1>
+    <p class="sub">Заполните шесть полей — справа соберётся готовый промпт для копирования в Claude Projects или ChatGPT Projects/GPT.</p>
+  </div>
+
+  <div class="presets">
+    <span class="preset-label">Загрузить пример</span>
+    <button class="preset-btn" data-preset="brand">Голос бренда</button>
+    <button class="preset-btn" data-preset="seo">SEO для letifabric.ru</button>
+    <button class="preset-btn" data-preset="analytics">Аналитика данных</button>
+    <button class="preset-btn" data-preset="docs">Документы и регламенты</button>
+    <button class="preset-btn" data-preset="hiring">Найм и отбор</button>
+    <button class="preset-btn btn-secondary" data-preset="clear" style="margin-left:auto;border-color:var(--ink-soft);color:var(--ink-soft)">Очистить</button>
+  </div>
+
+  <div class="work">
+    <div class="fields">
+      <div class="field" data-field="role">
+        <div class="field-head"><span class="field-num">1</span><span class="field-name">Роль</span><span class="field-len">0 симв.</span></div>
+        <div class="field-hint">Кем выступает ИИ. <b>Одна фраза.</b></div>
+        <textarea data-input rows="1" placeholder="SEO-специалист по нишевому e-com на Tilda"></textarea>
+      </div>
+      <div class="field" data-field="context">
+        <div class="field-head"><span class="field-num">2</span><span class="field-name">Контекст</span><span class="field-len">0 симв.</span></div>
+        <div class="field-hint">Что ИИ нужно знать о вас, продукте и задаче. <b>2–4 фразы.</b></div>
+        <textarea data-input rows="3" placeholder="Магазин тканей letifabric.ru, категория «хлопок для одежды». Целевая аудитория — швеи и небольшие ателье. Основные конкуренты — [3 сайта]."></textarea>
+      </div>
+      <div class="field" data-field="task">
+        <div class="field-head"><span class="field-num">3</span><span class="field-name">Задача</span><span class="field-len">0 симв.</span></div>
+        <div class="field-hint">Что именно сделать. <b>По шагам, если нужно.</b></div>
+        <textarea data-input rows="3" placeholder="Улучшить SEO товарной страницы. Нужны: title (≤60 символов), description (≤160), H1, список из 5 ключевых запросов с частотностью."></textarea>
+      </div>
+      <div class="field" data-field="constraints">
+        <div class="field-head"><span class="field-num">4</span><span class="field-name">Ограничения</span><span class="field-len">0 симв.</span></div>
+        <div class="field-hint">Границы, чего избегать, объём, формат.</div>
+        <textarea data-input rows="2" placeholder="Сохранить фирменный тон (спокойный, без превосходных степеней). Не использовать «уникальный», «лучший». Ключевые запросы — только релевантные категории."></textarea>
+      </div>
+      <div class="field" data-field="format">
+        <div class="field-head"><span class="field-num">5</span><span class="field-name">Формат ответа</span><span class="field-len">0 симв.</span></div>
+        <div class="field-hint">Точная структура вывода.</div>
+        <textarea data-input rows="2" placeholder="Таблица «Текущее / Предложение / Обоснование». Ниже — итоговый блок мета-тегов, готовый к вставке в Tilda."></textarea>
+      </div>
+      <div class="field" data-field="check">
+        <div class="field-head"><span class="field-num">6</span><span class="field-name">Проверка</span><span class="field-len">0 симв.</span></div>
+        <div class="field-hint"><b>Обязательно.</b> Правила против выдумывания.</div>
+        <textarea data-input rows="2" placeholder="Не придумывай данные по трафику. Если оценка требует данных, которых нет — помечай [УТОЧНИТЬ]. Указывай источник, если предлагаешь ключевые слова."></textarea>
+      </div>
+    </div>
+
+    <div class="preview-wrap">
+      <div class="preview-head">
+        <div class="preview-title">Готовый промпт</div>
+        <div class="preview-hint">Обновляется автоматически</div>
+      </div>
+      <div class="preview empty" id="preview">Заполните поля слева — промпт появится здесь.</div>
+      <div class="actions">
+        <button class="action btn-primary" id="btn-copy">Скопировать промпт</button>
+        <button class="action btn-secondary" id="btn-download">Скачать .txt</button>
+      </div>
+      <div class="hint-warn" id="warn">
+        <b>Задача не заполнена.</b> Без описания задачи промпт будет неполным — ИИ не поймёт, что от него хотят.
+      </div>
+    </div>
+  </div>
+
+  <div class="foot">
+    <b>Как пользоваться после сборки.</b> Скопируйте готовый промпт → откройте Claude Projects или ChatGPT Projects/GPT → вставьте в поле «Инструкция проекта» → сохраните. Дальше в диалоге проекта вы просто вставляете данные (карточку, страницу, документ) — ассистент отвечает по вашей инструкции. Инструкция задаётся один раз, работает многократно.<br><br>
+    <b>Пресеты как отправная точка.</b> Пять готовых заготовок сверху — это шаблоны из проекта: «Голос бренда» (единый стиль коммуникаций), «SEO» (аудит страниц на Tilda), «Аналитика» (разбор выгрузок), «Документы» (регламенты и чек-листы), «Найм» (первичный отбор резюме). Загрузите любой → адаптируйте под свою компанию → скопируйте.
+  </div>
+
+</div>
+
+<script>
+const FIELDS = ['role','context','task','constraints','format','check'];
+const LABELS = {
+  role: 'Роль',
+  context: 'Контекст',
+  task: 'Задача',
+  constraints: 'Ограничения',
+  format: 'Формат ответа',
+  check: 'Проверка'
+};
+
+const PRESETS = {
+  brand: {
+    role: 'Ты — редактор коммуникаций компании [НАЗВАНИЕ]. Твоя задача — писать и редактировать тексты так, чтобы они звучали в едином фирменном стиле.',
+    context: 'О компании: [краткое описание — что делает, для кого, ключевые ценности]. Типичный адресат: [кто читает эти тексты]. Желаемое впечатление: [что должен почувствовать читатель].',
+    task: 'Написать или отредактировать предложенный текст в фирменном стиле компании. Если контекста недостаточно (кому текст, с какой целью, какой канал) — сначала задай уточняющие вопросы, не пиши наугад.',
+    constraints: 'Tone of voice: [3–5 прилагательных, например: профессиональный, тёплый, без канцелярита].\nНе используй: [стоп-слова и запрещённые обороты].\nВсегда используй: [обязательные элементы, обращение на «вы»].',
+    format: 'Сразу готовый текст в нужном виде, без пояснений (если о них не просили).',
+    check: 'Не выдумывай факты о компании, ценах, сроках. Если факт нужен, а его нет — оставь пометку [УТОЧНИТЬ] вместо придуманного значения. Ориентир по стилю: [2–3 примера удачных текстов].'
+  },
+  seo: {
+    role: 'SEO-специалист по нишевому e-commerce на Tilda.',
+    context: 'Магазин тканей letifabric.ru, категория «хлопок для одежды». Целевая аудитория — швеи, дизайнеры одежды, небольшие ателье. Основные конкуренты — [указать 3 сайта]. Сезонность выражена, пик — август-октябрь.',
+    task: 'Провести SEO-аудит товарной страницы. Нужны:\n1. Мета-title (≤60 символов) и description (≤160).\n2. H1 и структура подзаголовков.\n3. Список из 5 ключевых запросов с частотностью.\n4. Рекомендации по объёму и структуре текста на странице.',
+    constraints: 'Сохранить спокойный фирменный тон, без превосходных степеней. Не использовать: «уникальный», «лучший», «премиум», «эксклюзивный». Ключевые запросы — только релевантные категории тканей. Учитывать особенности Tilda: правки через «Настройки страницы → SEO».',
+    format: 'Таблица «Текущее / Предложение / Обоснование» по каждому пункту. Ниже — итоговый блок мета-тегов, готовый к вставке в Tilda. В конце — короткая сводка «3 главных улучшения по приоритету».',
+    check: 'Не придумывай данные по трафику или частотности. Если оценка требует данных, которых нет — помечай [УТОЧНИТЬ]. Указывай источник, если предлагаешь конкретные ключевые слова. Не выдумывай особенности площадок, о которых не знаешь наверняка.'
+  },
+  analytics: {
+    role: 'Аналитик, который помогает руководителю быстро понять, что происходит в данных, и что с этим делать.',
+    context: 'Работаем с выгрузками вида [ОПИСАНИЕ: что за таблица, какие колонки, из какой системы — 1С, CRM, кабинет селлера, Excel вручную]. Ключевые метрики бизнеса: [перечислить — выручка, средний чек, остатки, оборачиваемость].',
+    task: '1. Опиши структуру полученных данных своими словами. Убедись, что понял правильно.\n2. Уточни, какой управленческий вопрос стоит за задачей (где просадка? что аномально? на чём фокус?).\n3. Проведи разбор: динамика, отклонения, аномалии, ABC-логика где уместно.\n4. Дай сводку для руководителя.',
+    constraints: 'Не углубляться в статистику ради статистики — фокус на управленческих выводах. Не строить графики словами (гистограммы, схемы) — только числа и текст. Не давать рекомендаций, которые нельзя проверить на этих данных.',
+    format: '1. Главный вывод — 1–2 фразы.\n2. 3–5 находок с цифрами и указанием источника (строка/колонка).\n3. Рекомендованное действие.',
+    check: 'Не придумывай числа. Если в данных чего-то нет — прямо скажи. Показывай, из каких строк и колонок сделан вывод, чтобы его можно было проверить. Отделяй факт из данных от гипотезы — гипотезы помечай явно.'
+  },
+  docs: {
+    role: 'Методист, который превращает громоздкие документы в короткие рабочие материалы, которыми реально пользуются на местах.',
+    context: 'Аудитория материалов: [кто будет читать — линейные сотрудники, менеджеры, мастера смены и т.д.]. От этого зависит язык и уровень детализации. Отрасль: [укажите]. Специфика: [если есть отраслевые требования].',
+    task: '1. Прочитай исходный документ и выдели, что в нём является действием, а что — пояснением.\n2. Если назначение документа неясно (регламент, обучение, контроль) — уточни у пользователя.\n3. Собери результат в запрошенном формате: чек-лист, памятка или пошаговая инструкция.',
+    constraints: 'Сохранять смысл, убирать «воду». Не добавлять правила и требования, которых нет в исходнике. Если логика документа противоречива или есть пробел — не «дорисовывать», а вынести в отдельный блок «Вопросы к уточнению». Каждый пункт чек-листа — одно проверяемое действие.',
+    format: 'Готовый материал в запрошенном виде (чек-лист / памятка / инструкция) + при необходимости блок «Вопросы к уточнению» в конце.',
+    check: 'Не додумывай нормативы, сроки, ответственных, если их нет в исходнике. Явно помечай [УТОЧНИТЬ] везде, где логика документа не даёт однозначного ответа.'
+  },
+  hiring: {
+    role: 'Помощник по первичному отбору кандидатов. Помогаешь рекрутеру быстро оценить резюме, но НЕ принимаешь решение о найме.',
+    context: 'Вакансия: [название роли, отдел]. Компания: [короткое описание].',
+    task: '1. Сопоставить резюме с профилем по каждому критерию.\n2. Дать краткую оценку соответствия — сильные стороны, пробелы, риски.\n3. Сформулировать вопросы для собеседования, закрывающие пробелы.',
+    constraints: 'Профиль вакансии:\n· Обязательные требования: [перечислить].\n· Желательные: [перечислить].\n· Красные флаги: [если есть].\n\nОценивать только профессиональные критерии. НЕ использовать пол, возраст, национальность, семейное положение и другие подобные признаки.',
+    format: '1. Соответствие профилю (по обязательным требованиям — да/нет с обоснованием).\n2. Сильные стороны.\n3. Пробелы и риски.\n4. Вопросы для собеседования (3–5 штук).',
+    check: 'Не выдумывай факты за кандидата. Если в резюме чего-то нет — так и напиши: «в резюме не указано». Итоговое решение всегда за человеком — ты даёшь материал для решения, а не вердикт.'
+  }
+};
+
+const $ = s => document.querySelector(s);
+const $$ = s => document.querySelectorAll(s);
+const inputs = {};
+
+FIELDS.forEach(f => {
+  const wrap = $(`.field[data-field="${f}"]`);
+  const ta = wrap.querySelector('textarea');
+  const lenEl = wrap.querySelector('.field-len');
+  inputs[f] = { wrap, ta, lenEl };
+  ta.addEventListener('input', () => {
+    lenEl.textContent = ta.value.length + ' симв.';
+    wrap.classList.toggle('filled', ta.value.trim().length > 0);
+    render();
+    save();
+  });
+});
+
+function render() {
+  const parts = [];
+  FIELDS.forEach(f => {
+    const v = inputs[f].ta.value.trim();
+    if (v) parts.push(LABELS[f] + ': ' + v);
+  });
+  const p = $('#preview');
+  if (parts.length === 0) {
+    p.className = 'preview empty';
+    p.textContent = 'Заполните поля слева — промпт появится здесь.';
+  } else {
+    p.className = 'preview';
+    p.textContent = parts.join('\n\n');
+  }
+  // hint about missing task
+  const hasContent = parts.length > 0;
+  const hasTask = inputs.task.ta.value.trim().length > 0;
+  $('#warn').classList.toggle('show', hasContent && !hasTask);
+}
+
+// Simple two-click confirmation instead of confirm() — works in in-app WebViews (Telegram, WhatsApp, etc.)
+let pendingPreset = null;
+let pendingTimer = null;
+function loadPreset(name) {
+  const hasContent = Object.values(inputs).some(x => x.ta.value.trim());
+  const needsConfirm = hasContent && name !== 'clear' || name === 'clear' && hasContent;
+
+  if (needsConfirm && pendingPreset !== name) {
+    pendingPreset = name;
+    const btn = document.querySelector(`.preset-btn[data-preset="${name}"]`);
+    if (btn) {
+      const orig = btn.textContent;
+      btn.dataset.orig = orig;
+      btn.textContent = name === 'clear' ? 'Ещё раз — очистить' : 'Ещё раз — заменить';
+      btn.style.background = 'var(--burgundy)';
+      btn.style.color = '#F4ECE2';
+      btn.style.borderColor = 'var(--burgundy)';
+    }
+    if (pendingTimer) clearTimeout(pendingTimer);
+    pendingTimer = setTimeout(() => {
+      if (btn && btn.dataset.orig) {
+        btn.textContent = btn.dataset.orig;
+        btn.style.background = '';
+        btn.style.color = '';
+        btn.style.borderColor = '';
+      }
+      pendingPreset = null;
+    }, 3000);
+    return;
+  }
+  // Reset any pending button state
+  document.querySelectorAll('.preset-btn').forEach(b => {
+    if (b.dataset.orig) {
+      b.textContent = b.dataset.orig;
+      b.style.background = '';
+      b.style.color = '';
+      b.style.borderColor = '';
+      delete b.dataset.orig;
+    }
+  });
+  pendingPreset = null;
+  if (pendingTimer) { clearTimeout(pendingTimer); pendingTimer = null; }
+
+  if (name === 'clear') {
+    FIELDS.forEach(f => { inputs[f].ta.value = ''; });
+  } else {
+    const preset = PRESETS[name];
+    if (!preset) return;
+    FIELDS.forEach(f => { inputs[f].ta.value = preset[f] || ''; });
+  }
+  FIELDS.forEach(f => {
+    inputs[f].lenEl.textContent = inputs[f].ta.value.length + ' симв.';
+    inputs[f].wrap.classList.toggle('filled', inputs[f].ta.value.trim().length > 0);
+  });
+  render();
+  save();
+}
+$$('.preset-btn').forEach(b => {
+  b.addEventListener('click', () => loadPreset(b.dataset.preset));
+});
+
+// Copy — three-level fallback: Clipboard API → execCommand on temp textarea → visible preselected textarea
+function copyToClipboard(text, onSuccess, onManual){
+  function fallback(){
+    // Create off-screen textarea for execCommand
+    var ta = document.createElement('textarea');
+    ta.value = text;
+    ta.setAttribute('readonly', '');
+    ta.style.position = 'fixed';
+    ta.style.top = '0';
+    ta.style.left = '0';
+    ta.style.width = '2em';
+    ta.style.height = '2em';
+    ta.style.padding = '0';
+    ta.style.border = 'none';
+    ta.style.outline = 'none';
+    ta.style.boxShadow = 'none';
+    ta.style.background = 'transparent';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    try{
+      ta.focus();
+      ta.select();
+      ta.setSelectionRange(0, text.length);
+      var ok = document.execCommand('copy');
+      document.body.removeChild(ta);
+      if(ok){ onSuccess(); return; }
+    }catch(e){
+      try{ document.body.removeChild(ta); }catch(_){}
+    }
+    onManual();
+  }
+  if(navigator.clipboard && navigator.clipboard.writeText && window.isSecureContext){
+    navigator.clipboard.writeText(text).then(onSuccess, fallback);
+  } else {
+    fallback();
+  }
+}
+
+$('#btn-copy').addEventListener('click', () => {
+  const text = $('#preview').textContent;
+  if (!text || $('#preview').classList.contains('empty')) return;
+  const b = $('#btn-copy');
+  const old = b.textContent;
+  function markDone(msg){
+    b.textContent = msg || 'Скопировано';
+    b.classList.add('copied');
+    setTimeout(() => { b.textContent = old; b.classList.remove('copied'); }, 1600);
+  }
+  copyToClipboard(text,
+    () => markDone('Скопировано'),
+    () => markDone('Выделите и Ctrl+C')
+  );
+});
+
+// Download
+$('#btn-download').addEventListener('click', () => {
+  const text = $('#preview').textContent;
+  if (!text || $('#preview').classList.contains('empty')) return;
+  const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const d = new Date().toISOString().slice(0,10);
+  a.href = url; a.download = `promt_${d}.txt`;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+});
+
+// SessionStorage persistence — silently no-op if unavailable (private browsing, WebView, etc.)
+let storageAvailable = false;
+try {
+  sessionStorage.setItem('__test__', '1');
+  sessionStorage.removeItem('__test__');
+  storageAvailable = true;
+} catch (e) {}
+
+function save() {
+  if (!storageAvailable) return;
+  try {
+    const data = {};
+    FIELDS.forEach(f => data[f] = inputs[f].ta.value);
+    sessionStorage.setItem('m1_prompt', JSON.stringify(data));
+  } catch (e) {}
+}
+function load() {
+  if (!storageAvailable) return;
+  try {
+    const raw = sessionStorage.getItem('m1_prompt');
+    if (!raw) return;
+    const data = JSON.parse(raw);
+    FIELDS.forEach(f => {
+      if (data[f]) {
+        inputs[f].ta.value = data[f];
+        inputs[f].lenEl.textContent = data[f].length + ' симв.';
+        inputs[f].wrap.classList.toggle('filled', data[f].trim().length > 0);
+      }
+    });
+    render();
+  } catch (e) {}
+}
+load();
+render();
+</script>
+</body>
+</html>
